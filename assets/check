@@ -6,11 +6,10 @@ Concourse check resource
 # Python 2 and 3 compatibility
 from __future__ import unicode_literals
 
-import sys
 import os.path
+import sys
 
 from resource import Resource
-
 
 if __name__ == '__main__':
     r = Resource()
@@ -20,4 +19,3 @@ if __name__ == '__main__':
         sys.stderr.write("ERROR: " + str(e) + "\n")
         sys.exit(1)
     sys.exit(rcode)
-

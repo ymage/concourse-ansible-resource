@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 """
 Concourse base resource class
@@ -6,16 +5,15 @@ Concourse base resource class
 # Python 2 and 3 compatibility
 from __future__ import unicode_literals, print_function
 
-import os
-import sys
-import time
+import argparse
 import json
 import logging
-import tempfile
-
-import argparse
+import os
+# import pprint
 import subprocess
-
+import sys
+import tempfile
+import time
 
 __program__ = "concourse-resource-type"
 __version__ = "v0.1.0"
@@ -23,18 +21,18 @@ __author__ = "Jose Riguera"
 __year__ = "2017"
 __email__ = "jose.riguera@springernature.com"
 __license__ = "MIT"
-__purpose__ = "Consourse resource"
+__purpose__ = "Concourse resource"
 
+# pp = pprint.PrettyPrinter(indent=2, stream=sys.stderr)
 
 
 class Resource(object):
     """Base resource implementation."""
-    LOGFORMAT='%(name)s: %(message)s'
-    LOGGING="logging.ini"
-    LOGLEVEL=logging.DEBUG
-    LOGENVCONF="RESOURCE_CONFIGLOG"
-    DEBUG="RESOURCE_DEBUG"
-
+    LOGFORMAT = '%(name)s: %(message)s'
+    LOGGING = "logging.ini"
+    LOGLEVEL = logging.DEBUG
+    LOGENVCONF = "RESOURCE_CONFIGLOG"
+    DEBUG = "RESOURCE_DEBUG"
 
     def __init__(self, arguments=None, logging_config=None):
         # By default ansible logfile is used
@@ -43,7 +41,6 @@ class Resource(object):
         self.fdin = args.infile
         self.fdout = args.outfile
         self.workfolder = args.workfolder
-
 
     def _logging(self, config=None):
         logconf = False
@@ -75,7 +72,6 @@ class Resource(object):
             self.logger.info("Using logging settings from '%s'" % logpath)
         return self.logger
 
-
     def _args(self, arguments=None):
         epilog = __purpose__ + '\n'
         epilog += __version__ + ', ' + __year__ + ' '
@@ -86,16 +82,15 @@ class Resource(object):
         g1 = parser.add_argument_group('Configuration options')
         g1.add_argument('workfolder', nargs='?')
         g1.add_argument('infile',
-            nargs='?',
-            type=argparse.FileType('r'),
-            default=sys.stdin)
+                        nargs='?',
+                        type=argparse.FileType('r'),
+                        default=sys.stdin)
         g1.add_argument('outfile',
-            nargs='?',
-            type=argparse.FileType('w'),
-            default=sys.stdout)
+                        nargs='?',
+                        type=argparse.FileType('w'),
+                        default=sys.stdout)
         args = parser.parse_args(arguments)
         return args
-
 
     def run(self, command):
         """Parse input/arguments, perform requested command return output."""
@@ -153,23 +148,22 @@ class Resource(object):
                 self.logger.error(msg)
                 raise ValueError(msg)
         self.logger.debug('response: "%s"', response)
-        output = json.dumps(response, indent=4, separators=(',', ': '))
-        self.fdout.write(str(output) + '\n')
+        # pp.pprint(response)
+        # output = json.dumps(response, indent=4, separators=(',', ': '))
+        # self.fdout.write(str(output) + '\n')
         return rcode
-
 
     def metadata(self, result):
         metadata = []
         for k in result.keys():
-            metadata.append({"name": str(k), "value": str(result[k]) })
+            metadata.append({"name": str(k), "value": str(result[k])})
         return metadata
-
 
     def process(self, cmd=[], input=None, timeout=None):
         proc = subprocess.Popen(cmd,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
+                                stdin=subprocess.PIPE,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
         self.logger.info('Running process, pid=%d: %s' % (proc.pid, str(cmd)))
         try:
             output, err = proc.communicate(input, timeout=timeout)
@@ -189,7 +183,6 @@ class Resource(object):
             self.logger.debug('Process %d finished with rcode 0' % (proc.pid))
         return int(proc.returncode), stdout, stderr
 
-
     def check(self, source, version):
         """`check` is invoked to detect new versions of the resource.
 
@@ -200,11 +193,10 @@ class Resource(object):
         identify an instance of the resource.
         """
         timestamp = time.time()
-        versions = { "timestamp": str(timestamp) }
-        rvalue = [ versions ]
+        versions = {"timestamp": str(timestamp)}
+        rvalue = [versions]
         rcode = 0
         return rcode, rvalue
-
 
     def fetch(self, dir, source, version, params):
         """`fetch` is passed a destination directory as $1, and is given on stdin
@@ -219,11 +211,10 @@ class Resource(object):
         """
         metadata = []
         timestamp = time.time()
-        ver = { "timestamp": str(timestamp) }
-        rvalue = { "version": ver, "metadata": metadata }
+        ver = {"timestamp": str(timestamp)}
+        rvalue = {"version": ver, "metadata": metadata}
         rcode = 0
         return rcode, rvalue
-
 
     def update(self, dir, source, params):
         """`update` is called with a path to the directory containing the
@@ -236,18 +227,7 @@ class Resource(object):
         """
         metadata = []
         timestamp = time.time()
-        version = { "timestamp": str(timestamp) }
-        rvalue = { "version": version, "metadata": metadata }
+        version = {"timestamp": str(timestamp)}
+        rvalue = {"version": version, "metadata": metadata}
         rcode = 0
         return rcode, rvalue
-
-
-if __name__ == '__main__':
-    r = Resource()
-    try:
-        rcode = r.run(os.path.basename(__file__))
-    except Exception as e:
-        sys.stderr.write("ERROR: " + str(e) + "\n")
-        sys.exit(1)
-    sys.exit(rcode)
-
