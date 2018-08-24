@@ -2,28 +2,23 @@
 """
 Concourse base resource class
 """
-# Python 2 and 3 compatibility
-from __future__ import unicode_literals, print_function
+import sys
+import time
 
 import argparse
 import json
 import logging
 import os
-# import pprint
 import subprocess
-import sys
 import tempfile
-import time
 
 __program__ = "concourse-resource-type"
 __version__ = "v0.1.0"
 __author__ = "Jose Riguera"
-__year__ = "2017"
+__year__ = "2018"
 __email__ = "jose.riguera@springernature.com"
 __license__ = "MIT"
 __purpose__ = "Concourse resource"
-
-# pp = pprint.PrettyPrinter(indent=2, stream=sys.stderr)
 
 
 class Resource(object):
@@ -148,9 +143,8 @@ class Resource(object):
                 self.logger.error(msg)
                 raise ValueError(msg)
         self.logger.debug('response: "%s"', response)
-        # pp.pprint(response)
-        # output = json.dumps(response, indent=4, separators=(',', ': '))
-        # self.fdout.write(str(output) + '\n')
+        output = json.dumps(response, indent=4, separators=(',', ': '))
+        self.fdout.write(str(output) + '\n')
         return rcode
 
     def metadata(self, result):
@@ -216,7 +210,7 @@ class Resource(object):
         rcode = 0
         return rcode, rvalue
 
-    def update(self, dir, source, params):
+    def update(self, folder, source, params):
         """`update` is called with a path to the directory containing the
         build's full set of sources as the first argument, and is given on
         stdin the configured params and the resource's source configuration.

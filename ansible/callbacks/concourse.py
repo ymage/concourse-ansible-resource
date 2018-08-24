@@ -3,21 +3,18 @@
 #
 # (c) 2017, Jose Riguera
 
-# Make coding more python3-ish
-from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
-
-from datetime import datetime
 
 from ansible.plugins.callback.default import CallbackModule as CallbackModuleDefault
 from ansible.utils.display import Display
+from datetime import datetime
+
 
 class StderrDisplay(Display):
 
     def display(self, msg, *args, **kwargs):
         # Everything is displayed on stderr
         return super(StderrDisplay, self).display(msg, stderr=True, *args, **kwargs)
-
 
 
 class CallbackModule(CallbackModuleDefault):
@@ -44,4 +41,3 @@ class CallbackModule(CallbackModuleDefault):
         end_time = datetime.now()
         runtime = end_time - self.start_time
         self._display.display("Runtime: %s days, %s hours, %s minutes, %s seconds" % (self._human_runtime(runtime)))
- 

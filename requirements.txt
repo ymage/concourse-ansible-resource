@@ -1,3 +1,4 @@
+pip==18.0
 ansible==2.6.3
 ansible-modules-hashivault==3.9.6
 apache-libcloud==2.3.0
@@ -13,10 +14,9 @@ dopy==0.3.7
 f5-sdk==3.0.19
 molecule==2.17.0
 netaddr==0.7.19
-pip==18.0
 pysphere==0.1.7
 python-consul==1.1.0
-pyvmomi==6.7.0
+pyvmomi==6.5.0.2017.5
 pywinrm==0.3.0
 requests==2.18.4
 shade==1.29.0

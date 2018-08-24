@@ -4,21 +4,13 @@
 # concourse-ansible-resource - ansible_playbook.py
 # 03/04/2018
 
-from __future__ import unicode_literals, print_function
-
-import os
 import time
 from resource import Resource
-from tempfile import NamedTemporaryFile
 
+import os
+from io import StringIO
 from playbook_cli import PlaybookCLI
-
-try:
-    # Python 3.x
-    from io import StringIO
-except ImportError:
-    # Python 2.x
-    from StringIO import StringIO
+from tempfile import NamedTemporaryFile
 
 try:
     from __main__ import display
@@ -93,7 +85,7 @@ class AnsiblePlaybook(Resource):
         """It Processes a inventory group. It can be a host (string),
         a list of hosts (list of strings) or a dictionary.
         """
-        print("[%s]" % name, file=output)
+        print("[%s]".format(name), file=output)
         if isinstance(data_group, dict):
             if "hosts" in data_group:
                 for host in data_group['hosts']:

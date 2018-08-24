@@ -4,7 +4,6 @@
 # concourse-ansible-resource - playbook_cli.py
 # 03/04/2018
 
-from __future__ import unicode_literals, print_function
 
 from collections import namedtuple
 
