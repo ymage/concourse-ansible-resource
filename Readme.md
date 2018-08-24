@@ -120,6 +120,7 @@ jobs:
     params:
       src: ansible-playbook
       playbook: site.yml
+...
 ```
 
 Another pipeline example:
@@ -168,6 +169,7 @@ jobs:
       src: ansible-playbook
       playbook: setup.yml
       verbosity: 0
+...
 ```
 
 
