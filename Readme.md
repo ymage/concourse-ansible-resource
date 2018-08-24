@@ -150,6 +150,8 @@ resources:
     remote_user: {{ansible-remote-user}}
     vault_password: {{ansible-vault-password}}
     debug: false
+    tags:
+      - packages
     inventory:
       path: inventory
       file: pe-prod-dogo-ironic-01.ini
