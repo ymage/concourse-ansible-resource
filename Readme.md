@@ -4,7 +4,7 @@ This is [Ansible](https://www.ansible.com) resource for [Concourse](http://conco
 to be able to execute Ansible playbooks from concourse.
 
 This a pure Python implementation using the Ansible API. It does not use the binary commands
-and it defines an output plugin to send the ansible execution logs to stderr as it is 
+and it defines an output plugin to send the ansible execution logs to stderr as it is
 required by concourse (see `ansible/callbacks/concourse.py`).
 
 The ansible default configuration (in `/etc/ansible`) is defined in `ansible` folder.
@@ -21,7 +21,7 @@ probably you will need to setup `private_key`, `remote_user` and `inventory`:
 * `vault_password`: Ansible vault password to access to encrypted files with variables.
 * `extra_vars`: Key-value dictionary with variables used in the playbooks.
 * `inventory`: Dictionary for inventory definition:
-  * `file`: Defaults to `inventory.ini` file name for inventory. 
+  * `file`: Defaults to `inventory.ini` file name for inventory.
   * `path`: Folder where the hosts inventory file will be created (if needed) and additional inventory files can be defined: group_vars and host_vars are. Defaults to `inventory`.
   * `hosts`: [Ansible inventory definition](http://docs.ansible.com/ansible/latest/dev_guide/developing_inventory.html#script-conventions) specifying the hosts, hosts groups and variables.
   * `executable`: Path to a dynamic inventory executable.
@@ -59,7 +59,7 @@ and `playbook` (only in `out`).
 * `vault_password`: Ansible vault password to access to encrypted files with variables.
 * `extra_vars`: Key-value dictionary with variables used in the playbooks.
 * `inventory`: Dictionary for inventory definition:
-  * `file`: Defaults to `inventory.ini` file name for inventory. 
+  * `file`: Defaults to `inventory.ini` file name for inventory.
   * `path`: Folder where the hosts inventory file will be created (if needed) and additional inventory files can be defined: group_vars and host_vars are. Defaults to `inventory`.
   * `hosts`: [Ansible inventory definition](http://docs.ansible.com/ansible/latest/dev_guide/developing_inventory.html#script-conventions) specifying the hosts, hosts groups and variables.
   * `executable`: Path to a dynamic inventory executable.
@@ -69,7 +69,7 @@ and `playbook` (only in `out`).
 * `become_pass`: Password in order to become `becomer_user` with `become_method`.
 * `ssh_common_args`: ssh client additional arguments to establish ssh connections.
 * `forks`: Number of parallel execution threads for hosts groups.
-* `tags`: Limit playbook execution to only tasks tagged with this tags.
+* `tags`: Limit playbook execution to only tasks tagged with this tags. (array)
 * `skip_tags`: Tasks of playbook with these tags will be skipped.
 
 
@@ -97,20 +97,20 @@ resources:
     remote_user: ansible
     inventory:
       hosts:
-        webservers: 
-        - "host2.example.com"
-        - "host3.example.com"
+        webservers:
+        - host2.example.com
+        - host3.example.com
         atlanta:
             hosts:
-            - "host1.example.com"
-            - "host4.example.com"
-            - "host5.example.com"
+            - host1.example.com
+            - host4.example.com
+            - host5.example.com
             vars:
               b: false
             children:
             - marietta
         marietta:
-        - "host6.example.com"
+        - host6.example.com
 
 jobs:
 - name: run-ansible
@@ -118,13 +118,13 @@ jobs:
   - get: ansible-playbook
   - put: ansible-executor
     params:
-      src: "ansible-playbook"
-      playbook: "site.yml"
+      src: ansible-playbook
+      playbook: site.yml
 ```
 
 Another pipeline example:
 
-```
+```yml
 ---
 resource_types:
 - name: ansible
@@ -149,6 +149,10 @@ resources:
     private_key: {{ansible-private-key}}
     remote_user: {{ansible-remote-user}}
     vault_password: {{ansible-vault-password}}
+    debug: false
+    inventory:
+      path: inventory
+      file: pe-prod-dogo-ironic-01.ini
 
 
 jobs:
@@ -159,11 +163,9 @@ jobs:
       submodules: all
   - put: ansible-executor
     params:
-      src: "ansible-playbook"
-      inventory:
-        path: "inventory"
-        file: "pe-prod-dogo-ironic-01.ini"
-      playbook: "setup.yml"
+      src: ansible-playbook
+      playbook: setup.yml
+      verbosity: 0
 ```
 
 
@@ -191,11 +193,8 @@ This is an example of a playbook git repository:
     └── other_vars.yml
 ```
 
-# Author
+# Authors
 
 Jose Riguera <jose.riguera@springernature.com>
 (c) 2017 Springer Nature Platform Engineering
-
-
-
-
+Ymage <ymage@o2php.com>
