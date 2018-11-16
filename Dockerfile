@@ -11,9 +11,7 @@ RUN ln -s /lib /lib64 && \
         curl \
         ca-certificates \
         zip \
-        jq \
         xmlsec \
-        yaml \
         libc6-compat \
         libxml2 \
         python3 \
@@ -30,16 +28,11 @@ RUN ln -s /lib /lib64 && \
 
 # Ansible installation
 ADD requirements.txt /opt/
-RUN pip3 install --no-cache-dir --install-option="--prefix=/install" -r /opt/requirements.txt
-
-#RUN pip3 install --no-cache-dir -r /opt/requirements.txt && \
-#    apk del build-dependencies && \
-#    rm -rf /var/cache/apk/*
-#
+RUN pip3 install --no-cache-dir --upgrade pip && \
+    pip3 install --no-cache-dir --install-option="--prefix=/install" -r /opt/requirements.txt
 
 FROM base
 COPY --from=builder /install /usr/local
-
 RUN ln -s /lib /lib64 && \
     apk add --upgrade --no-cache \
         curl \
@@ -66,5 +59,4 @@ COPY tests/ /opt/resource/tests/
 COPY assets/ /opt/resource/
 
 # default command: display local setup
-#CMD ["ansible", "-c", "local", "-m", "setup", "all"]
 CMD [ "ansible-playbook", "--version" ]
