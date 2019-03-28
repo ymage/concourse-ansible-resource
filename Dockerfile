@@ -1,38 +1,11 @@
 # Pull base image
-FROM alpine:3.8 as base
+FROM python:3.7.2-alpine3.9 as base
+ARG VERSION
 LABEL maintainer="Ymage"
-
-FROM base as builder
+LABEL version="$VERSION"
 
 # Base packages
 # Build dependencies
-RUN ln -s /lib /lib64 && \
-    apk add --upgrade --no-cache \
-        curl \
-        ca-certificates \
-        zip \
-        xmlsec \
-        libc6-compat \
-        libxml2 \
-        python3 \
-        py3-lxml \
-        py3-pip \
-        openssl && \
-    apk add --upgrade --no-cache --virtual build-dependencies \
-        build-base \
-        libffi-dev \
-        openssl-dev \
-        python3-dev \
-        linux-headers \
-        libxml2-dev
-
-# Ansible installation
-ADD requirements.txt /opt/
-RUN pip3 install --no-cache-dir --upgrade pip && \
-    pip3 install --no-cache-dir --install-option="--prefix=/install" -r /opt/requirements.txt
-
-FROM base
-COPY --from=builder /install /usr/local
 RUN ln -s /lib /lib64 && \
     apk add --upgrade --no-cache \
         curl \
@@ -43,11 +16,28 @@ RUN ln -s /lib /lib64 && \
         yaml \
         libc6-compat \
         libxml2 \
-        python3 \
+        libxslt \
         py3-lxml \
-        openssl
+        openssh \
+        openssl \
+        rsync && \
+    apk add --upgrade --no-cache --virtual build-dependencies \
+        build-base \
+        libffi-dev \
+        openssl-dev \
+        python3-dev \
+        linux-headers \
+        libxml2-dev \
+        libxslt-dev
 
-ENV PYTHONPATH=/usr/local/lib/python3.6/site-packages:$PYTHONPATH
+# Ansible installation
+ADD requirements.txt /opt/
+RUN pip3 install --no-cache-dir --upgrade pip setuptools && \
+    pip3 install --no-cache-dir --upgrade -r /opt/requirements.txt && \
+    apk del build-dependencies && \
+    rm -rf /var/cache/apk/*
+
+ENV PYTHONPATH=/usr/local/lib/python3.7/site-packages:$PYTHONPATH
 
 # Default config
 COPY ansible/ /etc/ansible/

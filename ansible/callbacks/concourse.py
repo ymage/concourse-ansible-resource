@@ -5,6 +5,7 @@
 
 __metaclass__ = type
 
+from ansible import constants as C
 from ansible.plugins.callback.default import CallbackModule as CallbackModuleDefault
 from ansible.utils.display import Display
 from datetime import datetime
@@ -41,3 +42,30 @@ class CallbackModule(CallbackModuleDefault):
         end_time = datetime.now()
         runtime = end_time - self.start_time
         self._display.display("Runtime: %s days, %s hours, %s minutes, %s seconds" % (self._human_runtime(runtime)))
+
+    def v2_runner_on_failed(self, result, ignore_errors=False):
+
+        delegated_vars = result._result.get('_ansible_delegated_vars', None)
+        self._clean_results(result._result, result._task.action)
+
+        if self._play.strategy == 'free' and self._last_task_banner != result._task._uuid:
+            self._print_task_banner(result._task)
+
+        self._handle_exception(result._result, use_stderr=True)
+        self._handle_warnings(result._result)
+
+        if result._task.loop and 'results' in result._result:
+            self._process_items(result)
+
+        else:
+            if delegated_vars:
+                self._display.display(
+                    "fatal: [%s -> %s]: FAILED! => %s" % (result._host.get_name(), delegated_vars['ansible_host'],
+                                                          self._dump_results(result._result)), color=C.COLOR_ERROR)
+            else:
+                self._display.display(
+                    "fatal: [%s]: FAILED! => %s" % (result._host.get_name(), self._dump_results(result._result)),
+                    color=C.COLOR_ERROR)
+
+        if ignore_errors:
+            self._display.display("...ignoring", color=C.COLOR_SKIP)

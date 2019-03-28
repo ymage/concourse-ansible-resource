@@ -91,12 +91,29 @@ class PlaybookCLI(CLI):
         # group_vars = None
         passwords = {}
 
-        # Gets data from YAML/JSON files
+        # all needs loader
         loader = DataLoader()
+
+        basedir = getattr(self.options, 'basedir', False)
+        if basedir:
+            loader.set_basedir(basedir)
+
+        # create the inventory, and filter it based on the subset specified (if any)
+        inventory = InventoryManager(loader=loader, sources=inventory_path)
+
+        # create the variable manager, which will be shared throughout
+        # the code, ensuring a consistent view of global variables
+        variable_manager = VariableManager(loader=loader, inventory=inventory)
+
+        if hasattr(self.options, 'basedir'):
+            if self.options.basedir:
+                variable_manager.safe_basedir = True
+        else:
+            variable_manager.safe_basedir = True
+
         if vault_password:
             loader.set_vault_secrets([('default', VaultSecret(_bytes=to_bytes(vault_password)))])
-        inventory = InventoryManager(loader, inventory_path)
-        variable_manager = VariableManager(loader=loader, inventory=inventory)
+
         if become_password is not None:
             passwords['become_pass'] = become_password
         if remote_password is not None:
