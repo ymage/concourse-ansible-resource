@@ -3,7 +3,7 @@ set -euo pipefail
 
 IMAGE=ansible-executor
 DOCKER_HUB_USER=ymage
-VERSION=$(date "+%Y%m%d%H%M")
+VERSION=2.7.10
 
 echo "Build ${IMAGE}:${VERSION}"
 

@@ -1,40 +1,30 @@
 # Pull base image
-FROM python:3.7.3-alpine3.9 as base
+FROM python:3.7.3-alpine3.9
 ARG VERSION
 LABEL maintainer="Ymage"
-LABEL version="$VERSION"
+LABEL version="${VERSION}"
 
 # Base packages
-# Build dependencies
+
 RUN ln -s /lib /lib64 && \
     apk add --upgrade --no-cache \
-        curl \
-        ca-certificates \
-        git \
-        jq \
-        libc6-compat \
-        libxml2 \
-        libxslt \
-        openssh \
-        openssl \
-        py3-lxml \
-        rsync \
-        xmlsec \
-        yaml \
-        zip && \
+      ca-certificates \
+      curl \
+      git \
+      openssh-client \
+      openssl \
+      rsync \
+      zip && \
     apk add --upgrade --no-cache --virtual build-dependencies \
-        build-base \
-        libffi-dev \
-        openssl-dev \
-        python3-dev \
-        linux-headers \
-        libxml2-dev \
-        libxslt-dev
+      build-base \
+      libffi-dev \
+      openssl-dev \
+      python3-dev
 
 # Ansible installation
 ADD requirements.txt /opt/
-RUN pip3 install --no-cache-dir --upgrade pip setuptools && \
-    pip3 install --no-cache-dir --upgrade -r /opt/requirements.txt && \
+RUN python3 -m pip install --no-cache-dir --upgrade pip setuptools && \
+    python3 -m pip install --no-cache-dir --upgrade --requirement /opt/requirements.txt && \
     apk del build-dependencies && \
     rm -rf /var/cache/apk/* && \
     mkdir -p ~/.ssh && \

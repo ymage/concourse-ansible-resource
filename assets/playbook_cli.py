@@ -14,6 +14,7 @@ from ansible.inventory.manager import InventoryManager
 from ansible.module_utils._text import to_bytes
 from ansible.parsing.dataloader import DataLoader
 from ansible.parsing.vault import VaultSecret
+from ansible.utils.vars import load_extra_vars, load_options_vars
 from ansible.vars.manager import VariableManager
 
 try:
@@ -86,7 +87,7 @@ class PlaybookCLI(CLI):
         vault_password = self.options.vault_password
         become_password = self.options.become_pass
         remote_password = self.options.remote_pass
-        # extra_vars = self.options.extra_vars
+        extra_vars = self.options.extra_vars
         # host_vars = None
         # group_vars = None
         passwords = {}
@@ -104,6 +105,9 @@ class PlaybookCLI(CLI):
         # create the variable manager, which will be shared throughout
         # the code, ensuring a consistent view of global variables
         variable_manager = VariableManager(loader=loader, inventory=inventory)
+
+        if extra_vars:
+            variable_manager.extra_vars = load_extra_vars(loader=loader, options=self.options)
 
         if hasattr(self.options, 'basedir'):
             if self.options.basedir:

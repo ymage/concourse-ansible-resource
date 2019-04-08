@@ -4,13 +4,14 @@
 # concourse-ansible-resource - ansible_playbook.py
 # 03/04/2018
 
-import time
-from resource import Resource
-
 import os
+import time
 from io import StringIO
-from playbook_cli import PlaybookCLI
+from resource import Resource
 from tempfile import NamedTemporaryFile
+
+from git import Repo
+from playbook_cli import PlaybookCLI
 
 try:
     from __main__ import display
@@ -208,8 +209,18 @@ class AnsiblePlaybook(Resource):
         config_params = self._get_config_param(params, self.PARAMS)
         config.update(config_params)
         # Path
-        build_path = config_params.get("src", "src")
-        build_path = os.path.join(workfolder, build_path)
+        build_path = config_params.get("src")
+        if build_path:
+            build_path = os.path.join(workfolder, build_path)
+        else:
+            build_path = os.path.join(workfolder, "src")
+            git_ssh_identity_filename = os.path.expanduser("~/.ssh/id_rsa")
+            git_ssh_identity_file = open(git_ssh_identity_filename, "w")
+            git_ssh_identity_file.write(source.get("src_private_key"))
+            git_ssh_identity_file.close()
+            os.chmod(git_ssh_identity_filename, 0o600)
+            Repo.clone_from(source.get("src_uri"), build_path, branch=source.get("src_branch", "master"))
+
         # Extra vars (just a dictionary)
         extra_vars = config.get("extra_vars", {})
         extra_vars.update(source.get("extra_vars", {}))
